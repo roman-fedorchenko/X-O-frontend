@@ -1,13 +1,17 @@
-# Залежності (ті самі, що ти щойно встановив)
+# Залежності
 node_modules/
-prisma/
-# Конфіденційні дані (твоє посилання на базу Neon та JWT_SECRET)
-.env
+dist/
+dist-ssr/
+*.local
 
-# Логи та тимчасові файли
+# Логи
 npm-debug.log*
-.DS_Store
+yarn-debug.log*
+yarn-error.log*
 
-# Prisma (якщо будеш генерувати клієнт локально)
-/prisma/client-lib
-/generated/prisma
+# Редактор (VS Code)
+.vscode/
+.idea/
+
+# Тимчасові файли ОС
+.DS_Store
