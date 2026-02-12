@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 
-// --- CSS STYLES (Вбудовані для зручності "OneFile") ---
+// --- CSS СТИЛІ ---
 const styles = `
-  /* Імпорт шрифту */
   @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
 
   :root {
     --bg-blue: #3644E8;
+    --bg-dark: #1E1E1E;
     --btn-beige: #D6C2A5;
     --btn-shadow: #8C7B66;
     --text-brown: #4A3B2A;
@@ -17,264 +17,202 @@ const styles = `
 
   * {
     box-sizing: border-box;
-    user-select: none; /* Забороняємо виділення тексту (важливо для гри на телефоні) */
+    margin: 0;
+    padding: 0;
+    user-select: none;
   }
 
   body, html {
-    margin: 0;
-    padding: 0;
     width: 100%;
     height: 100%;
-    overflow-x: hidden; /* Запобігаємо горизонтальному скролу */
     font-family: 'Fredoka One', cursive;
-    -webkit-tap-highlight-color: transparent; /* Прибирає синій клік на Android */
+    overflow: hidden; /* Запобігаємо скролу всього тіла */
   }
 
-  /* Головний контейнер */
-  .app-container {
+  /* Головна обгортка */
+  .app-wrapper {
+    display: flex;
+    flex-direction: row;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    background-color: var(--bg-dark);
+  }
+
+  /* Бічна панель (Sidebar) */
+  .sidebar {
+    width: 320px;
+    min-width: 320px;
     background-color: var(--bg-blue);
-    min-height: 100vh;
-    min-height: 100dvh; /* Адаптація під мобільні браузери */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    z-index: 10;
+    box-shadow: 10px 0 30px rgba(0,0,0,0.3);
+  }
+
+  /* Основна ігрова зона */
+  .main-content {
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 20px;
+    overflow-y: auto; /* Дозволяємо скрол тільки тут, якщо екран дуже малий */
+  }
+
+  /* Адаптація під мобільні */
+  @media (max-width: 850px) {
+    .app-wrapper {
+      flex-direction: column;
+    }
+    .sidebar {
+      width: 100%;
+      min-width: 100%;
+      height: auto;
+      min-height: 200px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
   }
 
   /* --- LOGO --- */
   .logo-container {
-    margin-bottom: clamp(20px, 5vh, 50px); /* Адаптивний відступ */
+    margin-bottom: clamp(20px, 4vh, 40px);
     text-align: center;
   }
 
-  .game-logo {
-    width: 100%;
-    max-width: 350px; /* Максимум на десктопі */
-    min-width: 200px; /* Мінімум на старих телефонах */
+  .game-logo-img {
+    width: 140px;
     height: auto;
     filter: drop-shadow(0px 8px 0px rgba(0,0,0,0.2));
-    transition: transform 0.3s ease;
   }
-  
-  .game-logo:hover {
-    transform: scale(1.05) rotate(-2deg);
+
+  .logo-fallback {
+    color: white;
+    font-size: 3rem;
+    text-shadow: 0 5px 0 rgba(0,0,0,0.2);
   }
 
   /* --- MENU --- */
   .menu-box {
     width: 100%;
-    max-width: 320px; /* Оптимальна ширина для кнопок */
+    max-width: 260px;
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 12px;
   }
 
-  /* 3D Кнопки */
   .cartoon-btn {
-    position: relative;
     background-color: var(--btn-beige);
     color: var(--text-brown);
     border: none;
-    border-radius: 16px;
-    padding: 16px 20px;
-    font-size: clamp(1rem, 4vw, 1.4rem); /* Шрифт адаптується від 16px до 22px */
+    border-radius: 12px;
+    padding: 14px 10px;
+    font-size: 1rem;
     font-family: inherit;
     cursor: pointer;
     width: 100%;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    
-    /* Тінь для 3D ефекту */
-    box-shadow: 0px 6px 0px var(--btn-shadow), 
-                0px 12px 20px rgba(0,0,0,0.25);
-    transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0px 5px 0px var(--btn-shadow);
+    transition: transform 0.1s, box-shadow 0.1s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
   }
 
   .cartoon-btn:active {
-    transform: translateY(4px);
-    box-shadow: 0px 2px 0px var(--btn-shadow),
-                0px 6px 10px rgba(0,0,0,0.2);
+    transform: translateY(3px);
+    box-shadow: 0px 2px 0px var(--btn-shadow);
   }
 
-  /* --- GAME BOARD (Адаптивність) --- */
-  .game-board {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    background-color: rgba(0, 0, 0, 0.2);
-    padding: 15px;
-    border-radius: 20px;
-    
-    /* Робимо дошку квадратною і адаптивною */
-    width: 90vw;
-    max-width: 400px;
-    aspect-ratio: 1 / 1; 
+  /* --- GAME ELEMENTS --- */
+  .status-wrapper {
+    width: 100%;
+    height: 80px; /* Фіксована висота запобігає "стрибкам" дошки */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
   }
 
-  .square {
-    background-color: var(--white);
-    border-radius: 12px;
-    border: none;
-    font-size: clamp(2rem, 10vw, 4rem); /* Величезні X та O */
-    color: var(--bg-blue);
-    font-family: inherit;
-    cursor: pointer;
-    box-shadow: inset 0px -4px 0px #E0E0E0;
+  .status-text {
+    color: white;
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    text-align: center;
+  }
+
+  /* Контейнер дошки для стабілізації */
+  .board-container {
+    width: 100%;
+    max-width: 480px;
+    aspect-ratio: 1 / 1;
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
   }
+
+  .game-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 12px;
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: 24px;
+    width: 100%;
+    height: 100%;
+  }
+
+  .square {
+    background-color: #2A2A2A;
+    border-radius: 16px;
+    border: 3px solid #3d3d3d;
+    font-size: clamp(2rem, 10vw, 5rem);
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: inset 0px -4px 0px rgba(0,0,0,0.2);
+  }
+
+  .square:hover { 
+    background-color: #333;
+    border-color: #555;
+  }
   
   .square.x { color: var(--accent-red); }
-  .square.o { color: var(--bg-blue); }
+  .square.o { color: #00E5FF; }
 
   .square:active {
-    background-color: #F5F5F5;
-    box-shadow: inset 0px 4px 0px rgba(0,0,0,0.1);
+    transform: scale(0.95);
+    background-color: #222;
+  }
+
+  .controls-footer {
+    margin-top: 30px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
   }
 
   .back-btn {
-    margin-top: 30px;
+    max-width: 180px;
     background-color: var(--accent-red);
     color: white;
-    box-shadow: 0px 6px 0px #C41E3A, 0px 10px 15px rgba(0,0,0,0.2);
-  }
-  
-  .back-btn:active {
-     box-shadow: 0px 2px 0px #C41E3A;
-  }
-
-  /* Текст статусу */
-  .status-text {
-    color: white;
-    font-size: 1.5rem;
-    margin-bottom: 20px;
-    text-shadow: 0px 3px 0px rgba(0,0,0,0.2);
-  }
-
-  /* --- ANIMATIONS --- */
-  @keyframes popIn {
-    0% { transform: scale(0.8); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-  }
-
-  .menu-box, .game-board {
-    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0px 5px 0px #C41E3A;
   }
 `;
 
-// --- COMPONENTS ---
+// --- ЛОГІКА ГРИ ---
 
-const MenuButton = ({ text, onClick, variant = 'primary' }) => (
-  <button 
-    className={`cartoon-btn ${variant === 'secondary' ? 'back-btn' : ''}`} 
-    onClick={onClick}
-  >
-    {text}
-  </button>
-);
-
-const GameBoard = ({ onBack }) => {
-  const [squares, setSquares] = useState(Array(9).fill(null));
-  const [xIsNext, setXIsNext] = useState(true);
-
-  const handleClick = (i) => {
-    if (squares[i] || calculateWinner(squares)) return;
-    const nextSquares = squares.slice();
-    nextSquares[i] = xIsNext ? 'X' : 'O';
-    setSquares(nextSquares);
-    setXIsNext(!xIsNext);
-  };
-
-  const winner = calculateWinner(squares);
-  const status = winner 
-    ? `Winner: ${winner}` 
-    : `Next player: ${xIsNext ? 'X' : 'O'}`;
-
-  return (
-    <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%'}}>
-      <div className="status-text">{status}</div>
-      <div className="game-board">
-        {squares.map((val, i) => (
-          <button 
-            key={i} 
-            className={`square ${val ? val.toLowerCase() : ''}`} 
-            onClick={() => handleClick(i)}
-          >
-            {val}
-          </button>
-        ))}
-      </div>
-      <div style={{marginTop: '20px', width: '100%', maxWidth: '320px'}}>
-         <MenuButton text="Back to Menu" onClick={onBack} variant="secondary" />
-      </div>
-    </div>
-  );
-};
-
-// --- MAIN APP COMPONENT ---
-
-export default function App() {
-  const [view, setView] = useState('menu'); // 'menu' | 'game'
-
-  // Ініціалізація Socket.io (підключення до Koyeb)
-  useEffect(() => {
-    // ВАЖЛИВО: Для цього прев'ю ми використовуємо пряме посилання.
-    // У вашому Vite проекті розкоментуйте import.meta.env і видаліть жорсткий рядок
-    
-    // const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
-    const backendUrl = 'https://supposed-katharyn-fun-tests-projets-a644ad4b.koyeb.app';
-    
-    console.log('Connecting to:', backendUrl);
-    
-    const socket = io(backendUrl);
-    
-    socket.on('connect', () => console.log('Connected to backend:', socket.id));
-    
-    return () => socket.disconnect();
-  }, []);
-
-  return (
-    <>
-      <style>{styles}</style>
-      <div className="app-container">
-        
-        {view === 'menu' && (
-          <>
-            <div className="logo-container">
-              {/* Якщо логотипа немає, покажемо красивий текст */}
-              <img 
-                src="/logo.png" 
-                alt="X & O" 
-                className="game-logo"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                  e.target.nextSibling.style.display = 'block';
-                }} 
-              />
-              <h1 style={{display: 'none', color: 'white', fontSize: '4rem', margin: 0, textShadow: '0 5px 0 rgba(0,0,0,0.2)'}}>
-                X<span style={{color:'#D6C2A5'}}>&</span>O
-              </h1>
-            </div>
-
-            <div className="menu-box">
-              <MenuButton text="Play with players" onClick={() => setView('game')} />
-              <MenuButton text="Play with bot" onClick={() => alert('Bot mode coming soon!')} />
-              <MenuButton text="History" onClick={() => alert('History coming soon!')} />
-              <MenuButton text="Sign up / Login" onClick={() => alert('Login logic here')} />
-            </div>
-          </>
-        )}
-
-        {view === 'game' && <GameBoard onBack={() => setView('menu')} />}
-        
-      </div>
-    </>
-  );
-}
-
-// Допоміжна функція для визначення переможця
 function calculateWinner(squares) {
   const lines = [
     [0, 1, 2], [3, 4, 5], [6, 7, 8],
@@ -287,5 +225,93 @@ function calculateWinner(squares) {
       return squares[a];
     }
   }
-  return null;
+  return squares.includes(null) ? null : 'Draw';
+}
+
+const Square = ({ value, onClick }) => (
+  <button className={`square ${value ? value.toLowerCase() : ''}`} onClick={onClick}>
+    {value}
+  </button>
+);
+
+// --- ОСНОВНИЙ КОМПОНЕНТ ---
+
+export default function App() {
+  const [view, setView] = useState('menu'); 
+  const [squares, setSquares] = useState(Array(9).fill(null));
+  const [xIsNext, setXIsNext] = useState(true);
+
+  useEffect(() => {
+    // URL вашого бекенду на Koyeb
+    const backendUrl = 'https://supposed-katharyn-fun-tests-projets-a644ad4b.koyeb.app';
+    const socket = io(backendUrl);
+    socket.on('connect', () => console.log('Connected to socket:', socket.id));
+    return () => socket.disconnect();
+  }, []);
+
+  const handleSquareClick = (i) => {
+    if (squares[i] || calculateWinner(squares)) return;
+    const next = squares.slice();
+    next[i] = xIsNext ? 'X' : 'O';
+    setSquares(next);
+    setXIsNext(!xIsNext);
+  };
+
+  const resetGame = () => {
+    setSquares(Array(9).fill(null));
+    setXIsNext(true);
+  };
+
+  const winner = calculateWinner(squares);
+  const status = winner === 'Draw' 
+    ? "It's a Draw!" 
+    : winner 
+      ? `Winner: ${winner}` 
+      : `Next: ${xIsNext ? 'X' : 'O'}`;
+
+  return (
+    <div className="app-wrapper">
+      <style>{styles}</style>
+
+      {/* Сайдбар - стабільний зліва */}
+      <aside className="sidebar">
+        <div className="logo-container">
+          <img src="/logo.png" alt="X&O" className="game-logo-img" onError={(e) => e.target.style.display='none'} />
+          <h1 className="logo-fallback">X&O</h1>
+        </div>
+
+        <div className="menu-box">
+          <button className="cartoon-btn" onClick={() => { setView('game'); resetGame(); }}>Play with players</button>
+          <button className="cartoon-btn" onClick={() => alert('Bot logic here soon!')}>Play with bot</button>
+          <button className="cartoon-btn" onClick={() => alert('Match history here soon!')}>History</button>
+          <button className="cartoon-btn" onClick={() => alert('Auth screen here soon!')}>Sign Up / Login</button>
+        </div>
+      </aside>
+
+      {/* Ігрова область - центр */}
+      <main className="main-content">
+        {view === 'game' ? (
+          <>
+            <div className="status-wrapper">
+              <h2 className="status-text">{status}</h2>
+            </div>
+            
+            <div className="board-container">
+              <div className="game-board">
+                {squares.map((val, i) => (
+                  <Square key={i} value={val} onClick={() => handleSquareClick(i)} />
+                ))}
+              </div>
+            </div>
+
+            <div className="controls-footer">
+              <button className="cartoon-btn back-btn" onClick={() => setView('menu')}>Back to Menu</button>
+            </div>
+          </>
+        ) : (
+          <div className="status-text" style={{opacity: 0.3}}>Please select a game mode</div>
+        )}
+      </main>
+    </div>
+  );
 }
