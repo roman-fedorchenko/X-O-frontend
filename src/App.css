@@ -1,42 +1,76 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+/* Підключаємо шрифт, схожий на мультяшний (з Google Fonts) */
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+
+:root {
+  --bg-blue: #3644E8; /* Синій фон як на картинці */
+  --btn-color: #D6C2A5; /* Бежевий колір кнопок */
+  --btn-shadow: #8C7B66; /* Темна частина кнопки (тінь) */
+  --text-color: #4A3B2A; /* Колір тексту на кнопках */
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* Скидаємо відступи, щоб фон був на весь екран */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.game-container {
+  background-color: var(--bg-blue);
+  min-height: 100vh; /* Висота на весь екран */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Центруємо по горизонталі */
+  justify-content: center; /* Центруємо по вертикалі */
+  font-family: 'Fredoka One', cursive; /* Мультяшний шрифт */
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.logo-section {
+  margin-bottom: 40px; /* Відступ від лого до кнопок */
 }
 
-.card {
-  padding: 2em;
+.game-logo {
+  max-width: 300px; /* Обмеження ширини логотипа */
+  width: 100%;
+  height: auto;
+  /* Додамо легку тінь логотипу */
+  filter: drop-shadow(0px 10px 0px rgba(0,0,0,0.2));
 }
 
-.read-the-docs {
-  color: #888;
+.menu-buttons {
+  display: flex;
+  flex-direction: column; /* Кнопки одна під одною */
+  gap: 20px; /* Відстань між кнопками */
+  width: 100%;
+  max-width: 300px;
+}
+
+/* Стиль "мультяшної" кнопки */
+.cartoon-btn {
+  background-color: var(--btn-color);
+  color: var(--text-color);
+  border: none;
+  border-radius: 15px; /* Закруглені кути */
+  padding: 15px 20px;
+  font-size: 1.2rem;
+  font-family: inherit;
+  cursor: pointer;
+  position: relative;
+  
+  /* Ефект 3D за допомогою жорсткої тіні знизу */
+  box-shadow: 0px 6px 0px var(--btn-shadow), 
+              0px 10px 10px rgba(0,0,0,0.2);
+  
+  transition: all 0.1s; /* Плавність натискання */
+}
+
+/* Ефект при натисканні: кнопка "вдавлюється" */
+.cartoon-btn:active {
+  transform: translateY(4px); /* Зсуваємо кнопку вниз */
+  box-shadow: 0px 2px 0px var(--btn-shadow); /* Зменшуємо тінь */
+}
+
+.cartoon-btn:hover {
+  filter: brightness(1.1); /* Трохи світлішає при наведенні */
 }

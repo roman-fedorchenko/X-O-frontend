@@ -1,35 +1,34 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import './App.css'; // Імпортуємо стилі
+import { useState } from 'react';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="game-container">
+      {/* 1. Логотип */}
+      <div className="logo-section">
+        <img src="/logo.png" alt="X & O Game Logo" className="game-logo" />
       </div>
-      <h1>Abra cadabra</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
+
+      {/* 2. Група кнопок */}
+      <div className="menu-buttons">
+        <MenuButton text="Play with players" />
+        <MenuButton text="Play with bot" />
+        <MenuButton text="History" />
+        <MenuButton text="Sign up / Login" />
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+// Ми створюємо окремий "міні-компонент" для кнопки, 
+// щоб не копіювати один і той самий HTML 4 рази.
+// Це і є принцип React: "Write once, use everywhere".
+function MenuButton({ text, onClick }) {
+  return (
+    <button className="cartoon-btn" onClick={onClick}>
+      {text}
+    </button>
+  );
+}
+
+export default App;
