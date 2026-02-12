@@ -26,10 +26,9 @@ const styles = `
     width: 100%;
     height: 100%;
     font-family: 'Fredoka One', cursive;
-    overflow: hidden; /* Запобігаємо скролу всього тіла */
+    overflow: hidden;
   }
 
-  /* Головна обгортка */
   .app-wrapper {
     display: flex;
     flex-direction: row;
@@ -39,7 +38,7 @@ const styles = `
     background-color: var(--bg-dark);
   }
 
-  /* Бічна панель (Sidebar) */
+  /* Бічна панель */
   .sidebar {
     width: 320px;
     min-width: 320px;
@@ -61,10 +60,9 @@ const styles = `
     align-items: center;
     justify-content: center;
     padding: 20px;
-    overflow-y: auto; /* Дозволяємо скрол тільки тут, якщо екран дуже малий */
+    overflow: hidden; /* Важливо для фіксації */
   }
 
-  /* Адаптація під мобільні */
   @media (max-width: 850px) {
     .app-wrapper {
       flex-direction: column;
@@ -73,28 +71,27 @@ const styles = `
       width: 100%;
       min-width: 100%;
       height: auto;
-      min-height: 200px;
-      padding: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      min-height: 180px;
+      padding: 15px;
     }
   }
 
   /* --- LOGO --- */
   .logo-container {
-    margin-bottom: clamp(20px, 4vh, 40px);
+    margin-bottom: 30px;
     text-align: center;
   }
 
   .game-logo-img {
-    width: 140px;
+    width: 120px;
     height: auto;
     filter: drop-shadow(0px 8px 0px rgba(0,0,0,0.2));
   }
 
   .logo-fallback {
     color: white;
-    font-size: 3rem;
-    text-shadow: 0 5px 0 rgba(0,0,0,0.2);
+    font-size: 2.5rem;
+    text-shadow: 0 4px 0 rgba(0,0,0,0.2);
   }
 
   /* --- MENU --- */
@@ -111,7 +108,7 @@ const styles = `
     color: var(--text-brown);
     border: none;
     border-radius: 12px;
-    padding: 14px 10px;
+    padding: 12px;
     font-size: 1rem;
     font-family: inherit;
     cursor: pointer;
@@ -119,10 +116,6 @@ const styles = `
     text-transform: uppercase;
     box-shadow: 0px 5px 0px var(--btn-shadow);
     transition: transform 0.1s, box-shadow 0.1s;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
   }
 
   .cartoon-btn:active {
@@ -130,26 +123,24 @@ const styles = `
     box-shadow: 0px 2px 0px var(--btn-shadow);
   }
 
-  /* --- GAME ELEMENTS --- */
+  /* --- GAME BOARD (ФІКСОВАНА ТА СТАБІЛЬНА) --- */
   .status-wrapper {
-    width: 100%;
-    height: 80px; /* Фіксована висота запобігає "стрибкам" дошки */
+    height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
   }
 
   .status-text {
     color: white;
-    font-size: clamp(1.5rem, 4vw, 2.2rem);
-    text-align: center;
+    font-size: clamp(1.4rem, 3vw, 2rem);
   }
 
-  /* Контейнер дошки для стабілізації */
+  /* Контейнер дошки розраховується відносно доступного простору */
   .board-container {
-    width: 100%;
-    max-width: 480px;
+    /* Дошка займає максимум 90% ширини або 65% висоти батьківського блоку */
+    width: min(90%, 65vh); 
     aspect-ratio: 1 / 1;
     position: relative;
     display: flex;
@@ -159,11 +150,12 @@ const styles = `
 
   .game-board {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(3, 1fr);
-    gap: 12px;
+    /* Використовуємо minmax(0, 1fr) для жорсткої фіксації розміру клітинок */
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+    gap: clamp(5px, 1.5vw, 15px);
     background-color: rgba(255, 255, 255, 0.05);
-    padding: 15px;
+    padding: clamp(8px, 2vw, 20px);
     border-radius: 24px;
     width: 100%;
     height: 100%;
@@ -173,31 +165,26 @@ const styles = `
     background-color: #2A2A2A;
     border-radius: 16px;
     border: 3px solid #3d3d3d;
-    font-size: clamp(2rem, 10vw, 5rem);
+    font-size: clamp(1.5rem, 6vw, 4.5rem);
     font-family: inherit;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
+    transition: background 0.2s;
     box-shadow: inset 0px -4px 0px rgba(0,0,0,0.2);
+    /* Забороняємо контенту розпирати кнопку */
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
   }
 
-  .square:hover { 
-    background-color: #333;
-    border-color: #555;
-  }
-  
+  .square:hover { background-color: #333; }
   .square.x { color: var(--accent-red); }
   .square.o { color: #00E5FF; }
 
-  .square:active {
-    transform: scale(0.95);
-    background-color: #222;
-  }
-
   .controls-footer {
-    margin-top: 30px;
+    margin-top: clamp(20px, 4vh, 40px);
     width: 100%;
     display: flex;
     justify-content: center;
@@ -210,8 +197,6 @@ const styles = `
     box-shadow: 0px 5px 0px #C41E3A;
   }
 `;
-
-// --- ЛОГІКА ГРИ ---
 
 function calculateWinner(squares) {
   const lines = [
@@ -234,18 +219,15 @@ const Square = ({ value, onClick }) => (
   </button>
 );
 
-// --- ОСНОВНИЙ КОМПОНЕНТ ---
-
 export default function App() {
   const [view, setView] = useState('menu'); 
   const [squares, setSquares] = useState(Array(9).fill(null));
   const [xIsNext, setXIsNext] = useState(true);
 
   useEffect(() => {
-    // URL вашого бекенду на Koyeb
     const backendUrl = 'https://supposed-katharyn-fun-tests-projets-a644ad4b.koyeb.app';
     const socket = io(backendUrl);
-    socket.on('connect', () => console.log('Connected to socket:', socket.id));
+    socket.on('connect', () => console.log('Socket connected:', socket.id));
     return () => socket.disconnect();
   }, []);
 
@@ -273,7 +255,6 @@ export default function App() {
     <div className="app-wrapper">
       <style>{styles}</style>
 
-      {/* Сайдбар - стабільний зліва */}
       <aside className="sidebar">
         <div className="logo-container">
           <img src="/logo.png" alt="X&O" className="game-logo-img" onError={(e) => e.target.style.display='none'} />
@@ -283,12 +264,11 @@ export default function App() {
         <div className="menu-box">
           <button className="cartoon-btn" onClick={() => { setView('game'); resetGame(); }}>Play with players</button>
           <button className="cartoon-btn" onClick={() => alert('Bot logic here soon!')}>Play with bot</button>
-          <button className="cartoon-btn" onClick={() => alert('Match history here soon!')}>History</button>
-          <button className="cartoon-btn" onClick={() => alert('Auth screen here soon!')}>Sign Up / Login</button>
+          <button className="cartoon-btn" onClick={() => alert('History here soon!')}>History</button>
+          <button className="cartoon-btn" onClick={() => alert('Auth here soon!')}>Sign Up / Login</button>
         </div>
       </aside>
 
-      {/* Ігрова область - центр */}
       <main className="main-content">
         {view === 'game' ? (
           <>
@@ -305,11 +285,11 @@ export default function App() {
             </div>
 
             <div className="controls-footer">
-              <button className="cartoon-btn back-btn" onClick={() => setView('menu')}>Back to Menu</button>
+              <button className="cartoon-btn back-btn" onClick={() => setView('menu')}>Back</button>
             </div>
           </>
         ) : (
-          <div className="status-text" style={{opacity: 0.3}}>Please select a game mode</div>
+          <div className="status-text" style={{opacity: 0.2}}>Ready for battle?</div>
         )}
       </main>
     </div>
