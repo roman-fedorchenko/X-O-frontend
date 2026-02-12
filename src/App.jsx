@@ -6,7 +6,7 @@ function App() {
     <div className="game-container">
       {/* 1. Логотип */}
       <div className="logo-section">
-        <img src="/logo.png" alt="X & O Game Logo" className="game-logo" />
+        <img src="logos/main_logo.png" alt="X & O Game Logo" className="game-logo" />
       </div>
 
       {/* 2. Група кнопок */}
