@@ -1,76 +1,89 @@
-/* Підключаємо шрифт, схожий на мультяшний (з Google Fonts) */
-@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
-
-:root {
-  --bg-blue: #3644E8; /* Синій фон як на картинці */
-  --btn-color: #D6C2A5; /* Бежевий колір кнопок */
-  --btn-shadow: #8C7B66; /* Темна частина кнопки (тінь) */
-  --text-color: #4A3B2A; /* Колір тексту на кнопках */
+  @import url('https://fonts.googleapis.com/css2?family=Chela+One&display=swap');
+  :root {
+    --bg-blue: #242fa7;
+    --bg-dark: #1E1E1E;
+    --btn-beige: #D6C2A5;
+    --btn-shadow: #8C7B66;
+    --text-brown: #4A3B2A;
+    --white: #ffffff;
+    --accent-red: #FF4757;
+    --main-font: 'Chela One', system-ui;
+  }
+@property --gradient-percent {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 30%;
+}
+*{
+  box-sizing: border-box;
 }
 
-/* Скидаємо відступи, щоб фон був на весь екран */
-body, html {
+html, body, #root {
   margin: 0;
   padding: 0;
-  height: 100%;
-  width: 100%;
+  overflow-x: hidden;
 }
 
-.game-container {
-  background-color: var(--bg-blue);
-  min-height: 100vh; /* Висота на весь екран */
+html, body {
+  margin: 0;
+  padding: 0;
+}
+#root{
+  width: 100%;
+}
+.App {
+  background: radial-gradient(ellipse at 50% 50%, var(--bg-blue) var(--gradient-percent), var(--bg-dark) 100%);
+  animation: pulse 3s infinite alternate ease-in-out;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  min-width: 100vh;
+  margin: 0;
+  font-family: var(--main-font);
+}
+.main-menu{
+  text-align: center;
+  align-items: center;
   display: flex;
   flex-direction: column;
-  align-items: center; /* Центруємо по горизонталі */
-  justify-content: center; /* Центруємо по вертикалі */
-  font-family: 'Fredoka One', cursive; /* Мультяшний шрифт */
+  padding: 40px;
+  border-radius: 20px;
+  gap: 20px;
 }
-
-.logo-section {
-  margin-bottom: 40px; /* Відступ від лого до кнопок */
-}
-
-.game-logo {
-  max-width: 300px; /* Обмеження ширини логотипа */
-  width: 100%;
+  .menu-btn {
+    font-family: var(--main-font);
+    background-color: var(--btn-beige);
+    color: var(--text-brown);
+    border: none;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 2rem;
+    cursor: pointer;
+    width: 100%;
+    text-transform: uppercase;
+    box-shadow: 0px 5px 0px var(--btn-shadow);
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+  .menu-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0px 7px 0px var(--btn-shadow);
+  }
+  .menu-btn:active {
+    transform: translateY(3px);
+    box-shadow: 0px 2px 0px var(--btn-shadow);
+  }
+.logo {
+  min-width: 250px;
+  width: 30vw;
   height: auto;
-  /* Додамо легку тінь логотипу */
-  filter: drop-shadow(0px 10px 0px rgba(0,0,0,0.2));
-}
-
-.menu-buttons {
-  display: flex;
-  flex-direction: column; /* Кнопки одна під одною */
-  gap: 20px; /* Відстань між кнопками */
-  width: 100%;
-  max-width: 300px;
-}
-
-/* Стиль "мультяшної" кнопки */
-.cartoon-btn {
-  background-color: var(--btn-color);
-  color: var(--text-color);
-  border: none;
-  border-radius: 15px; /* Закруглені кути */
-  padding: 15px 20px;
-  font-size: 1.2rem;
-  font-family: inherit;
-  cursor: pointer;
-  position: relative;
-  
-  /* Ефект 3D за допомогою жорсткої тіні знизу */
-  box-shadow: 0px 6px 0px var(--btn-shadow), 
-              0px 10px 10px rgba(0,0,0,0.2);
-  
-  transition: all 0.1s; /* Плавність натискання */
-}
-
-/* Ефект при натисканні: кнопка "вдавлюється" */
-.cartoon-btn:active {
-  transform: translateY(4px); /* Зсуваємо кнопку вниз */
-  box-shadow: 0px 2px 0px var(--btn-shadow); /* Зменшуємо тінь */
-}
-
-.cartoon-btn:hover {
-  filter: brightness(1.1); /* Трохи світлішає при наведенні */
+  margin-bottom: 20px;
+} 
+@keyframes pulse {
+  from {
+    --gradient-percent: 10%;
+  }
+  to {
+    --gradient-percent: 20%;
+  }
 }
